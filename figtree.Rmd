@@ -13,24 +13,11 @@ library(tidyr)
 
 ```
 
-```{r import_data}
+```{r fig_data}
 
 figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
-
-figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
-all_rain_data <- read.csv(file = "data/rain.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
-
-
-
-rain_data <- all_rain_data[c("Day", "Rain")]
-
-
-```
-
-
-```{r prepare_data}
 
 figs_2017$Day <- mdy(figs_2017$Day)
 figs_2018$Day <- mdy(figs_2018$Day)
@@ -41,21 +28,43 @@ figs_2018 <- figs_2018 %>% complete(Day = seq.Date(min(Day), max(Day), by="day")
 figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 
 
+figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 
 figs_all$Day <- mdy(figs_all$Day)
+
 figs_all <- figs_all %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
-figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
 
 
+```
 
-rain_data$Day <- mdy(rain_data$Day)
-rain_data %>% ggplot() + geom_line(aes(x = Day, y = Rain))
+```{r weather_data}
+
+
+weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM")
+
+#Next we split the weather data into the daily summary and hourly values based on the station number
+daily_weather <- weather_data %>% filter(SOURCE == 6)
+hourly_weather <- weather_data %>% filter(SOURCE == 7)
+
+```
+
+
+```{r solar_data}
+
+#For the solar data, we delete every other row as it is empty in the csv file
+
+solar_data <- read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM")
+delete <- seq(1, length(solar_data$Day), 2)
+solar_data <- solar_data[-delete, ]
 
 ```
 
 
 
 ```{r plot}
+
+figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
+
 
 
 ```
