@@ -19,6 +19,13 @@ figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", file
 figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 
+figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+all_rain_data <- read.csv(file = "data/rain.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+
+
+
+rain_data <- all_rain_data[c("Day", "Rain")]
+
 
 ```
 
@@ -34,16 +41,21 @@ figs_2018 <- figs_2018 %>% complete(Day = seq.Date(min(Day), max(Day), by="day")
 figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 
 
+
+figs_all$Day <- mdy(figs_all$Day)
+figs_all <- figs_all %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
+figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
+
+
+
+rain_data$Day <- mdy(rain_data$Day)
+rain_data %>% ggplot() + geom_line(aes(x = Day, y = Rain))
+
 ```
 
 
 
 ```{r plot}
-
-figs_2017 %>% ggplot() + geom_point(aes(x = Day, y = Cumulative))
-figs_2018 %>% ggplot() + geom_point(aes(x = Day, y = Cumulative))
-figs_2019 %>% ggplot() + geom_point(aes(x = Day, y = Edible))
-
 
 
 ```
