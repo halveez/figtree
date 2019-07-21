@@ -9,7 +9,7 @@ output: html_document
 
 library(tidyverse)
 library(tidyr)
-
+library(lubridate)
 
 ```
 
@@ -25,7 +25,7 @@ figs_2019$Day <- mdy_hm(figs_2019$Day) %>% with_tz("US/Pacific")
 
 figs_2017 <- figs_2017 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 figs_2018 <- figs_2018 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
-figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
+#figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 
 
 figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
@@ -46,6 +46,11 @@ weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fi
 daily_weather <- weather_data %>% filter(SOURCE == 6)
 hourly_weather <- weather_data %>% filter(SOURCE == 7)
 
+#split the date string at the T value for a delimiter and keep whats before for the daily dataset
+
+#replace the t with a space for the hourly dataset
+
+#Then convert to date types
 ```
 
 
@@ -57,15 +62,44 @@ solar_data <- read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fil
 delete <- seq(1, length(solar_data$Day), 2)
 solar_data <- solar_data[-delete, ]
 
+solar_data$Day <- mdy(solar_data$Day)
+
+
 ```
 
 
 
-```{r plot}
+```{r quick_plot}
 
 figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
 
+solar_data %>% ggplot() + geom_point(aes(x = Day, y = Energy_Produced_Wh))
 
 
 ```
+
+
+
+```{r overall_prep}
+
+#First we must ensure that the "Day" are all m/d/y without any hour or minute day
+#daily_weather_mdy <- daily_weather %>%
+
+
+#Then we combine all of the separate datasets by the Day column
+#overall <- merge(solar_data_mdy, figs_all, by.x = "Day", by.y = "Day")
+#overall <- merge(overall, daily_weather_mdy, by.x = "Day", by.y = "Day")
+
+```
+
+
+
+```{r overall_plots}
+
+
+
+
+```
+
+
 
