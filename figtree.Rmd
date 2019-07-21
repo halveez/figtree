@@ -13,8 +13,9 @@ library(tidyverse)
 
 ```{r import_data}
 
-
-
+figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",")
+figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",")
+figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",")
 
 
 ```
