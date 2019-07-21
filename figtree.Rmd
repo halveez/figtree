@@ -8,20 +8,41 @@ output: html_document
 ```{r setup}
 
 library(tidyverse)
+library(tidyr)
+
 
 ```
 
 ```{r import_data}
 
-figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",")
-figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",")
-figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",")
+figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
 
 
 ```
 
+
+```{r prepare_data}
+
+figs_2017$Day <- mdy(figs_2017$Day)
+figs_2018$Day <- mdy(figs_2018$Day)
+figs_2019$Day <- mdy_hm(figs_2019$Day) %>% with_tz("US/Pacific")
+
+figs_2017 <- figs_2017 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
+figs_2018 <- figs_2018 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
+figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
+
+
+```
+
+
+
 ```{r plot}
 
+figs_2017 %>% ggplot() + geom_point(aes(x = Day, y = Cumulative))
+figs_2018 %>% ggplot() + geom_point(aes(x = Day, y = Cumulative))
+figs_2019 %>% ggplot() + geom_point(aes(x = Day, y = Edible))
 
 
 
