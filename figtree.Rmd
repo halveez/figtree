@@ -15,9 +15,9 @@ library(lubridate)
 
 ```{r fig_data}
 
-figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
-figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
-figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
+figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
+figs_2019 <- read.csv(file = "data/2019figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
 
 figs_2017$Day <- mdy(figs_2017$Day)
 figs_2018$Day <- mdy(figs_2018$Day)
@@ -28,7 +28,7 @@ figs_2018 <- figs_2018 %>% complete(Day = seq.Date(min(Day), max(Day), by="day")
 #figs_2019 <- figs_2019 %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 
 
-figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM")
+figs_all <- read.csv(file = "data/allfigs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
 
 figs_all$Day <- mdy(figs_all$Day)
 
@@ -40,7 +40,7 @@ figs_all <- figs_all %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 ```{r weather_data}
 
 
-weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM")
+weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE)
 
 #Next we split the weather data into the daily summary and hourly values based on the station number
 daily_weather <- weather_data %>% filter(SOURCE == 6)
@@ -48,9 +48,20 @@ hourly_weather <- weather_data %>% filter(SOURCE == 7)
 
 #split the date string at the T value for a delimiter and keep whats before for the daily dataset
 
+for (i in 1:nrow(daily_weather)){
+  daily_weather$Day[i] <- format(as.Date(strsplit(as.character(daily_weather$Day[i]), "T")[[1]][1]), '%m/%d/%Y')
+}
+
+daily_weather$Day <- mdy(daily_weather$Day)
+
 #replace the t with a space for the hourly dataset
 
 #Then convert to date types
+
+#ymd_hms() for hourly the change order 
+
+
+
 ```
 
 
@@ -58,7 +69,8 @@ hourly_weather <- weather_data %>% filter(SOURCE == 7)
 
 #For the solar data, we delete every other row as it is empty in the csv file
 
-solar_data <- read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM")
+solar_data <- read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE)
+
 delete <- seq(1, length(solar_data$Day), 2)
 solar_data <- solar_data[-delete, ]
 
@@ -81,14 +93,9 @@ solar_data %>% ggplot() + geom_point(aes(x = Day, y = Energy_Produced_Wh))
 
 
 ```{r overall_prep}
-
-#First we must ensure that the "Day" are all m/d/y without any hour or minute day
-#daily_weather_mdy <- daily_weather %>%
-
-
-#Then we combine all of the separate datasets by the Day column
-#overall <- merge(solar_data_mdy, figs_all, by.x = "Day", by.y = "Day")
-#overall <- merge(overall, daily_weather_mdy, by.x = "Day", by.y = "Day")
+#We first combine all of the separate datasets by the Day column
+overall <- merge(solar_data, figs_all, by.x = "Day", by.y = "Day")
+overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day")
 
 ```
 
@@ -96,7 +103,7 @@ solar_data %>% ggplot() + geom_point(aes(x = Day, y = Energy_Produced_Wh))
 
 ```{r overall_plots}
 
-
+overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Combined, color = "green")) + geom_smooth(aes(y = Energy_Produced_Wh/1500, color = "red")) + geom_point(aes(y = Rain))
 
 
 ```
