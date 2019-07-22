@@ -10,6 +10,7 @@ output: html_document
 library(tidyverse)
 library(tidyr)
 library(lubridate)
+library(reshape2)
 
 ```
 
@@ -43,7 +44,7 @@ figs_all <- figs_all %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE)
 
 #Next we split the weather data into the daily summary and hourly values based on the station number
-daily_weather <- weather_data %>% filter(SOURCE == 6)
+daily_weather <- weather_data %>% filter(SOURCE == 6) %>% filter(Rain != "T" & Rain != "0")  
 hourly_weather <- weather_data %>% filter(SOURCE == 7)
 
 #split the date string at the T value for a delimiter and keep whats before for the daily dataset
@@ -53,6 +54,8 @@ for (i in 1:nrow(daily_weather)){
 }
 
 daily_weather$Day <- mdy(daily_weather$Day)
+
+daily_weather$Rain[daily_weather$Rain == ""] <- 0
 
 #replace the t with a space for the hourly dataset
 
@@ -69,7 +72,7 @@ daily_weather$Day <- mdy(daily_weather$Day)
 
 #For the solar data, we delete every other row as it is empty in the csv file
 
-solar_data <- read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE)
+solar_data <- as_tibble(read.csv(file = "data/solarday.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE))
 
 delete <- seq(1, length(solar_data$Day), 2)
 solar_data <- solar_data[-delete, ]
@@ -87,15 +90,23 @@ figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
 
 solar_data %>% ggplot() + geom_point(aes(x = Day, y = Energy_Produced_Wh))
 
+daily_weather %>% ggplot() + geom_point(aes(x = Day, y = Rain))
+
 
 ```
 
 
 
 ```{r overall_prep}
-#We first combine all of the separate datasets by the Day column
-overall <- merge(solar_data, figs_all, by.x = "Day", by.y = "Day")
-overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day")
+
+#Extract rain data from daily weather and then drop from original data set
+rain_days <- daily_weather %>% filter(Rain != "0") %>% select(Day, Rain)
+daily_weather$Rain <- NULL
+
+#Currently dropping some fig values when merging the datasets
+overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
+overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day", all.x = TRUE)
+overall <- merge(overall, rain_days, by.x = "Day", by.y = "Day", all.x = TRUE)
 
 ```
 
@@ -103,8 +114,12 @@ overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day")
 
 ```{r overall_plots}
 
-overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Combined, color = "green")) + geom_smooth(aes(y = Energy_Produced_Wh/1500, color = "red")) + geom_point(aes(y = Rain))
+overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain)) + geom_point(aes(y = Combined)) + geom_point(aes(y = Energy_Produced_Wh/1500))
 
+
+test <- melt(overall, id.var = "Day")
+test2 <- na.omit(test)
+test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Energy_Produced_Wh") %>% ggplot(aes(x = Day, y = value, color = variable)) + geom_point()
 
 ```
 
