@@ -86,7 +86,7 @@ solar_data$Day <- mdy(solar_data$Day)
 
 ```{r quick_plot}
 
-figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
+figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined))
 
 solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh))
 
@@ -120,7 +120,7 @@ overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain)) + geom_point(aes(y 
 test <- melt(overall, id.var = "Day")
 test2 <- na.omit(test)
 
-test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Energy_Produced_Wh") %>% ggplot(aes(x = Day, y = value, color = variable)) + geom_point()
+test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Energy_Produced_Wh") %>% ggplot(aes(x = Day, y = value, color = variable)) + geom_point() + facet_grid(rows = vars(variable), scales = "free_y")
 
 ```
 
