@@ -125,4 +125,21 @@ test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Ener
 ```
 
 
+```{r 2018_closeup}
+
+#First we will subset the data for just the values 2 weeks before the first fig, and 1 week after the last
+#6/7 2weeks before first 11/22 as week after last 
+
+overall_2018 <- overall %>% filter(Day > "2018-06-07" & Day < "2018-11-22")
+
+
+#Next we will do some quick plotting 
+
+overall_2018 %>%  ggplot(aes(x = Day)) + geom_point(aes(y = Combined)) + geom_point(aes(y = Energy_Produced_Wh/1500))
+
+
+
+
+
+```
 
