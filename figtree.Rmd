@@ -88,10 +88,7 @@ solar_data$Day <- mdy(solar_data$Day)
 
 figs_all %>% ggplot() + geom_point(aes(x = Day, y = Combined))
 
-solar_data %>% ggplot() + geom_point(aes(x = Day, y = Energy_Produced_Wh))
-
-daily_weather %>% ggplot() + geom_point(aes(x = Day, y = Rain))
-
+solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh))
 
 ```
 
@@ -102,6 +99,9 @@ daily_weather %>% ggplot() + geom_point(aes(x = Day, y = Rain))
 #Extract rain data from daily weather and then drop from original data set
 rain_days <- daily_weather %>% filter(Rain != "0") %>% select(Day, Rain)
 daily_weather$Rain <- NULL
+
+rain_days %>% ggplot() + geom_point(aes(x = Day, y = Rain))
+
 
 #Currently dropping some fig values when merging the datasets
 overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
@@ -119,6 +119,7 @@ overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain)) + geom_point(aes(y 
 
 test <- melt(overall, id.var = "Day")
 test2 <- na.omit(test)
+
 test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Energy_Produced_Wh") %>% ggplot(aes(x = Day, y = value, color = variable)) + geom_point()
 
 ```
