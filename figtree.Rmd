@@ -82,45 +82,39 @@ solar_data$Day <- mdy(solar_data$Day)
 
 ```
 
+```{r rain_data}
+
+#Extract rain data from daily weather and then drop from original data set
+rain_days <- daily_weather %>% filter(Rain != "0") %>% select(Day, Rain)
+rain_days$Rain <- as.numeric(rain_days$Rain)
+daily_weather$Rain <- NULL
+
+```
 
 
 ```{r quick_plot}
 
-figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined))
+figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 1) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records - Default Width")
 
-solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh))
+figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 3) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records - Increased Width")
+
+solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh), color = "orange") + scale_y_continuous(name = "Watt-Hours") + ggtitle("Home Solar Panel Energy Production Records")
+
+rain_days %>% ggplot() + geom_point(aes(x = Day, y = Rain), color = 'lightblue') + scale_y_continuous(name = "Inches") + ggtitle("San Diego Rain Records") + geom_vline(xintercept = ymd("2015-07-01", "2016-07-01", "2017-07-01", "2018-07-01", "2019-07-01")) + geom_text(aes(x = ymd("2015-12-30"), y = 2.5, label = "July 1 Vertical Lines"), size = 3)
 
 ```
 
 
 
-```{r overall_prep}
-
-#Extract rain data from daily weather and then drop from original data set
-rain_days <- daily_weather %>% filter(Rain != "0") %>% select(Day, Rain)
-daily_weather$Rain <- NULL
-
-rain_days %>% ggplot() + geom_point(aes(x = Day, y = Rain))
-
+```{r overall}
 
 #Currently dropping some fig values when merging the datasets
 overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, rain_days, by.x = "Day", by.y = "Day", all.x = TRUE)
 
-```
+overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("Rain, Solar, and Fig Count Overview - 2017 to Present")
 
-
-
-```{r overall_plots}
-
-overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain)) + geom_point(aes(y = Combined)) + geom_point(aes(y = Energy_Produced_Wh/1500))
-
-
-test <- melt(overall, id.var = "Day")
-test2 <- na.omit(test)
-
-test2 %>% filter(variable == "Combined" | variable == "Rain" | variable == "Energy_Produced_Wh") %>% ggplot(aes(x = Day, y = value, color = variable)) + geom_point() + facet_grid(rows = vars(variable), scales = "free_y")
 
 ```
 
