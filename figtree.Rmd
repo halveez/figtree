@@ -57,13 +57,6 @@ daily_weather$Day <- mdy(daily_weather$Day)
 
 daily_weather$Rain[daily_weather$Rain == ""] <- 0
 
-#replace the t with a space for the hourly dataset
-
-#Then convert to date types
-
-#ymd_hms() for hourly the change order 
-
-
 
 ```
 
@@ -91,6 +84,24 @@ daily_weather$Rain <- NULL
 
 ```
 
+```{r temperature_data}
+
+temperature_data <- as_tibble(read.csv(file = "data/temperature.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE))
+
+temperature_data$Day <- mdy(temperature_data$Day)
+temperature_data$Average_T <- as.numeric(temperature_data$Average_T)
+temperature_data$Max_T <- as.numeric(temperature_data$Max_T)
+temperature_data$Min_T <- as.numeric(temperature_data$Min_T)
+
+temp_days <- temperature_data %>% select(Day, Average_T, Max_T, Min_T)
+
+
+
+```
+
+
+
+
 
 ```{r quick_plot}
 
@@ -102,6 +113,9 @@ solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh), colo
 
 rain_days %>% ggplot() + geom_point(aes(x = Day, y = Rain), color = 'lightblue') + scale_y_continuous(name = "Inches") + ggtitle("San Diego Rain Records") + geom_vline(xintercept = ymd("2015-07-01", "2016-07-01", "2017-07-01", "2018-07-01", "2019-07-01")) + geom_text(aes(x = ymd("2015-12-30"), y = 2.5, label = "July 1 Vertical Lines"), size = 3)
 
+temp_days %>% ggplot() + geom_smooth(aes(x = Day, y = Average_T), color = "red", span = 0.2, se = FALSE) + geom_point(aes(x = Day, y = Average_T), alpha = 0.1) + scale_y_continuous(name = "°F") + ggtitle("Carlsbad Average Temperature Records")
+
+
 ```
 
 
@@ -112,6 +126,7 @@ rain_days %>% ggplot() + geom_point(aes(x = Day, y = Rain), color = 'lightblue')
 overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, rain_days, by.x = "Day", by.y = "Day", all.x = TRUE)
+#overall <- merge(overall, temp_days, by.x = "Day", by.y = "Day", all.x = TRUE)
 
 overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("Rain, Solar, and Fig Count Overview - 2017 to Present")
 
@@ -122,17 +137,14 @@ overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue"
 ```{r 2018_closeup}
 
 #First we will subset the data for just the values 2 weeks before the first fig, and 1 week after the last
-#6/7 2weeks before first 11/22 as week after last 
 
 overall_2018 <- overall %>% filter(Day > "2018-06-07" & Day < "2018-11-22")
 
+#Next we will do some plotting 
 
-#Next we will do some quick plotting 
+overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("2018 Season - Rain, Solar, Air Temp, Fig Count")
 
-overall_2018 %>%  ggplot(aes(x = Day)) + geom_point(aes(y = Combined)) + geom_point(aes(y = Energy_Produced_Wh/1500))
-
-
-
+#overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Ave_Temp_DB))
 
 
 ```
