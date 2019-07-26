@@ -105,9 +105,7 @@ temp_days <- temperature_data %>% select(Day, Average_T, Max_T, Min_T)
 
 ```{r, quick_plot, echo = FALSE, warning = FALSE, message = FALSE}
 
-figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 1) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records - Default Width")
-
-figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 3) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records - Increased Width")
+figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 1) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records")
 
 solar_data %>% ggplot() + geom_smooth(aes(x = Day, y = Energy_Produced_Wh), color = "orange") + scale_y_continuous(name = "Watt-Hours") + ggtitle("Home Solar Panel Energy Production Records")
 
