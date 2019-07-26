@@ -126,7 +126,7 @@ temp_days %>% ggplot() + geom_smooth(aes(x = Day, y = Average_T), color = "red",
 overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, daily_weather, by.x = "Day", by.y = "Day", all.x = TRUE)
 overall <- merge(overall, rain_days, by.x = "Day", by.y = "Day", all.x = TRUE)
-#overall <- merge(overall, temp_days, by.x = "Day", by.y = "Day", all.x = TRUE)
+overall <- merge(overall, temp_days, by.x = "Day", by.y = "Day", all.x = TRUE)
 
 overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("Rain, Solar, and Fig Count Overview - 2017 to Present")
 
@@ -142,9 +142,8 @@ overall_2018 <- overall %>% filter(Day > "2018-06-07" & Day < "2018-11-22")
 
 #Next we will do some plotting 
 
-overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("2018 Season - Rain, Solar, Air Temp, Fig Count")
+overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_smooth(aes(x = Day, y = Average_T), color = "red", span = 0.2, se = FALSE) + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("2018 Season - Rain, Solar, Air Temp, Fig Count")
 
-#overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Ave_Temp_DB))
 
 
 ```
