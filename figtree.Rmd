@@ -1,11 +1,11 @@
 ---
-title: "figtree"
+title: "Fig Tree"
 author: "Zachary Halvorson"
 date: "7/20/2019"
 output: html_document
 ---
 
-```{r setup}
+```{r, setup, echo = FALSE, warning = FALSE, message = FALSE}
 
 library(tidyverse)
 library(tidyr)
@@ -14,7 +14,7 @@ library(reshape2)
 
 ```
 
-```{r fig_data}
+```{r, fig_data, echo = FALSE, warning = FALSE}
 
 figs_2017 <- read.csv(file = "data/2017figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
 figs_2018 <- read.csv(file = "data/2018figs.csv", header = TRUE, sep = ",", fileEncoding="UTF-8-BOM", stringsAsFactors = FALSE)
@@ -38,7 +38,7 @@ figs_all <- figs_all %>% complete(Day = seq.Date(min(Day), max(Day), by="day"))
 
 ```
 
-```{r weather_data}
+```{r, weather_data, echo = FALSE, warning = FALSE}
 
 
 weather_data <- read.csv(file = "data/weather.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE)
@@ -61,7 +61,7 @@ daily_weather$Rain[daily_weather$Rain == ""] <- 0
 ```
 
 
-```{r solar_data}
+```{r, solar_data, echo = FALSE, warning = FALSE}
 
 #For the solar data, we delete every other row as it is empty in the csv file
 
@@ -75,7 +75,7 @@ solar_data$Day <- mdy(solar_data$Day)
 
 ```
 
-```{r rain_data}
+```{r, rain_data, echo = FALSE, warning = FALSE}
 
 #Extract rain data from daily weather and then drop from original data set
 rain_days <- daily_weather %>% filter(Rain != "0") %>% select(Day, Rain)
@@ -84,7 +84,7 @@ daily_weather$Rain <- NULL
 
 ```
 
-```{r temperature_data}
+```{r, temperature_data, echo = FALSE, warning = FALSE}
 
 temperature_data <- as_tibble(read.csv(file = "data/temperature.csv", header = TRUE, sep = ",", fileEncoding = "UTF-8-BOM", stringsAsFactors = FALSE))
 
@@ -103,7 +103,7 @@ temp_days <- temperature_data %>% select(Day, Average_T, Max_T, Min_T)
 
 
 
-```{r quick_plot}
+```{r, quick_plot, echo = FALSE, warning = FALSE, message = FALSE}
 
 figs_all %>% ggplot() + geom_col(aes(x = Day, y = Combined), color = "darkgreen", fill = "darkgreen", width = 1) + scale_y_continuous(name = "Count") + ggtitle("Home Fig Tree Production Records - Default Width")
 
@@ -120,7 +120,7 @@ temp_days %>% ggplot() + geom_smooth(aes(x = Day, y = Average_T), color = "red",
 
 
 
-```{r overall}
+```{r, overall, echo = FALSE, warning = FALSE, message = FALSE}
 
 #Currently dropping some fig values when merging the datasets
 overall <- merge(figs_all, solar_data, by.x = "Day", by.y = "Day", all.x = TRUE)
@@ -134,7 +134,7 @@ overall %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue"
 ```
 
 
-```{r 2018_closeup}
+```{r, 2018_closeup, echo = FALSE, warning = FALSE, message = FALSE}
 
 #First we will subset the data for just the values 2 weeks before the first fig, and 1 week after the last
 
@@ -142,8 +142,7 @@ overall_2018 <- overall %>% filter(Day > "2018-06-07" & Day < "2018-11-22")
 
 #Next we will do some plotting 
 
-overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Rain), color = "lightblue") + geom_smooth(aes(x = Day, y = Average_T), color = "red", span = 0.2, se = FALSE) + geom_point(aes(y = Combined/20), color = "darkgreen") + geom_smooth(aes(y = Energy_Produced_Wh/22000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("2018 Season - Rain, Solar, Air Temp, Fig Count")
-
+overall_2018 %>% ggplot(aes(x = Day)) + geom_point(aes(y = Average_T/15), color = "red") + geom_line(aes(y = Cumulative/400), color = "darkgreen", size = 1) + geom_point(aes(y = Energy_Produced_Wh/20000), color = "orange") + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) + ggtitle("2018 Season - Solar, Air Temp, Cumulative Fig Count")
 
 
 ```
